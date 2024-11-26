@@ -59,6 +59,14 @@ public class SeatMarginCacheLoader {
     private final RedissonClient redissonClient;
     private final TrainStationService trainStationService;
 
+    /**
+     * 返回trainId车次从departure到arrival的各个等级座位的座位余量数
+     * @param trainId
+     * @param seatType 几等座
+     * @param departure
+     * @param arrival
+     * @return key是seatType，value是座位余量
+     */
     public Map<String, String> load(String trainId, String seatType, String departure, String arrival) {
         Map<String, Map<String, String>> trainStationRemainingTicketMaps = new LinkedHashMap<>();
         String keySuffix = CacheUtil.buildKey(trainId, departure, arrival);
@@ -67,6 +75,7 @@ public class SeatMarginCacheLoader {
         lock.lock();
         try {
             StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
+            // 这里其实还是一个双重判断锁，原因见调用此load函数的{@link pageListTicketQueryV1}
             Object quantityObj = stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, seatType);
             if (CacheUtil.isNullOrBlank(quantityObj)) {
                 TrainDO trainDO = distributedCache.safeGet(

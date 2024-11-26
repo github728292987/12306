@@ -30,12 +30,12 @@ import java.util.List;
 public final class StationCalculateUtil {
 
     /**
-     * 计算出发站和终点站中间的站点（包含出发站和终点站）
+     * 计算某车次任意两站组合成的路线（包含出发站和终点站）
      *
-     * @param stations     所有站点数据
-     * @param startStation 出发站
-     * @param endStation   终点站
-     * @return 出发站和终点站中间的站点（包含出发站和终点站）
+     * @param stations     某车次所有站点数据
+     * @param startStation 某车次出发站
+     * @param endStation   某车次终点站
+     * @return 计算某车次任意两车站组合成的路线（包含出发站和终点站）
      */
     public static List<RouteDTO> throughStation(List<String> stations, String startStation, String endStation) {
         List<RouteDTO> routesToDeduct = new ArrayList<>();
@@ -87,8 +87,8 @@ public final class StationCalculateUtil {
 
     public static void main(String[] args) {
         List<String> stations = Arrays.asList("北京南", "济南西", "南京南", "杭州东", "宁波");
-        String startStation = "北京南";
-        String endStation = "南京南";
+        String startStation = "济南西";
+        String endStation = "杭州东";
         StationCalculateUtil.takeoutStation(stations, startStation, endStation).forEach(System.out::println);
     }
 }
