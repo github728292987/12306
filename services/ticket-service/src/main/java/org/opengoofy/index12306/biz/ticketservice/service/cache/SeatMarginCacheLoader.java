@@ -60,11 +60,14 @@ public class SeatMarginCacheLoader {
     private final TrainStationService trainStationService;
 
     /**
-     * 返回trainId车次从departure到arrival的各个等级座位的座位余量数
+     * 返回trainId车次从departure车站到arrival车站的各个seatType座位的座位余量数
+     *
+     * 但实际上 trainStationRemainingTicketMaps 组构了trainId车次从departure到arrival的所有路线段的各个seatType的座位余量，key是trainId_StartStation_EndStation构成的路线标识，value是map
+     *      函数返回值实际上就是trainStationRemainingTicketMaps其中一个entry的value。
      * @param trainId
-     * @param seatType 几等座
-     * @param departure
-     * @param arrival
+     * @param seatType  几等座
+     * @param departure 用户查询的起始站
+     * @param arrival   用户查询的终点站
      * @return key是seatType，value是座位余量
      */
     public Map<String, String> load(String trainId, String seatType, String departure, String arrival) {
@@ -124,6 +127,7 @@ public class SeatMarginCacheLoader {
                     }
                 } else {
                     Map<String, String> trainStationRemainingTicket = new LinkedHashMap<>();
+                    // 防止恶意查询不存在的路线的票缓存穿透，存0值
                     VehicleTypeEnum.findSeatTypesByCode(trainDO.getTrainType())
                             .forEach(each -> trainStationRemainingTicket.put(String.valueOf(each), "0"));
                     trainStationRemainingTicketMaps.put(TRAIN_STATION_REMAINING_TICKET + keySuffix, trainStationRemainingTicket);
@@ -138,6 +142,9 @@ public class SeatMarginCacheLoader {
                 .orElse(new LinkedHashMap<>());
     }
 
+    /**
+     * 根据已有信息在seat表查询并count条数得到座位余量数
+     */
     private String selectSeatMargin(String trainId, Integer type, String departure, String arrival) {
         LambdaQueryWrapper<SeatDO> queryWrapper = Wrappers.lambdaQuery(SeatDO.class)
                 .eq(SeatDO::getTrainId, trainId)

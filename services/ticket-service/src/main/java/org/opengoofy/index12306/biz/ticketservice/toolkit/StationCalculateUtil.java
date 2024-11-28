@@ -30,12 +30,12 @@ import java.util.List;
 public final class StationCalculateUtil {
 
     /**
-     * 计算某车次任意两站组合成的路线（包含出发站和终点站）
+     * 计算某车次从startStation到endStation能组合成的所有路线段（包含出发站和终点站）
      *
      * @param stations     某车次所有站点数据
      * @param startStation 某车次出发站
      * @param endStation   某车次终点站
-     * @return 计算某车次任意两车站组合成的路线（包含出发站和终点站）
+     * @return 计算某车次从startStation到endStation能组合成的所有路线段（包含出发站和终点站）
      */
     public static List<RouteDTO> throughStation(List<String> stations, String startStation, String endStation) {
         List<RouteDTO> routesToDeduct = new ArrayList<>();
@@ -56,12 +56,13 @@ public final class StationCalculateUtil {
     }
 
     /**
-     * 计算出发站和终点站需要扣减余票的站点（包含出发站和终点站）
-     *
+     * TODO：目前的扣减逻辑有点问题，比如abcde，有人买了bc，但目前有扣减ae表示不能买ae全程的票，但之后有人买了同个位置的ce，又会再扣一次ae，但实际上只需要扣一次。
+     * 计算购买从出发站到终点站的票之后其他需要扣减余票的路线段（包含出发站和终点站）
+     * 实际上就是所有和(出发站到终点站的路线段)有交集的所有路线段。
      * @param stations     所有站点数据
      * @param startStation 出发站
      * @param endStation   终点站
-     * @return 出发站和终点站需要扣减余票的站点（包含出发站和终点站）
+     * @return 计算购买从出发站到终点站的票之后其他需要扣减余票的路线段（包含出发站和终点站）
      */
     public static List<RouteDTO> takeoutStation(List<String> stations, String startStation, String endStation) {
         List<RouteDTO> takeoutStationList = new ArrayList<>();

@@ -37,7 +37,6 @@ import java.util.Objects;
 
 /**
  * 列车车票余量缓存更新消费端
- *
  */
 @Slf4j
 @Component

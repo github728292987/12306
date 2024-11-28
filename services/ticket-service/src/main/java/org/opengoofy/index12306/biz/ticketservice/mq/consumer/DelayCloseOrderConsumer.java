@@ -53,7 +53,6 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 
 /**
  * 延迟关闭订单消费者
- *
  */
 @Slf4j
 @Component

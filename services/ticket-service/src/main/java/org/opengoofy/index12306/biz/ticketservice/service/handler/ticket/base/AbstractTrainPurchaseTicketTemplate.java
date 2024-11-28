@@ -37,7 +37,6 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 
 /**
  * 抽象高铁购票模板基础服务
- *
  */
 public abstract class AbstractTrainPurchaseTicketTemplate implements IPurchaseTicket, CommandLineRunner, AbstractExecuteStrategy<SelectSeatDTO, List<TrainPurchaseTicketRespDTO>> {
 
@@ -47,6 +46,7 @@ public abstract class AbstractTrainPurchaseTicketTemplate implements IPurchaseTi
 
     /**
      * 选择座位
+     * 抽象方法，由子类实现，并由子类对象调用 {@Link AbstractTrainPurchaseTicketTemplate#executeResp} 从而调用子类实现的selectSeats
      *
      * @param requestParam 购票请求入参
      * @return 乘车人座位
@@ -63,6 +63,12 @@ public abstract class AbstractTrainPurchaseTicketTemplate implements IPurchaseTi
                 .build();
     }
 
+    /**
+     * 这里只为一种座位类型的多位乘客分配座位
+     * TODO：这里直接扣减redis余票缓存怎么保证和数据库的一致性？ 这里应该只是暂时锁住余票以便向前端展示，真正一致性由canal订阅binlog进行更新，是吗？又似乎是双写？因为前面已经在数据库锁了座位，然后这里又减reids缓存
+     * @param requestParam 执行策略入参
+     * @return
+     */
     @Override
     public List<TrainPurchaseTicketRespDTO> executeResp(SelectSeatDTO requestParam) {
         List<TrainPurchaseTicketRespDTO> actualResult = selectSeats(requestParam);

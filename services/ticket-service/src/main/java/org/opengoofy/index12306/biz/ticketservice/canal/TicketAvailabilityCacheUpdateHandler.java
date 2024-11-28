@@ -38,7 +38,6 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 
 /**
  * 列车余票缓存更新组件
- *
  */
 @Component
 @RequiredArgsConstructor

@@ -106,6 +106,13 @@ public class SeatServiceImpl extends ServiceImpl<SeatMapper, SeatDO> implements 
         return seatMapper.listSeatTypeCount(trainId, startStation, endStation, seatTypes);
     }
 
+    /**
+     * 与购买车票路线段有交集的路线段的座位都要锁住
+     * @param trainId                     列车 ID
+     * @param departure                   出发站
+     * @param arrival                     到达站
+     * @param trainPurchaseTicketRespList 乘车人以及座位信息
+     */
     @Override
     public void lockSeat(String trainId, String departure, String arrival, List<TrainPurchaseTicketRespDTO> trainPurchaseTicketRespList) {
         List<RouteDTO> routeList = trainStationService.listTakeoutTrainStationRoute(trainId, departure, arrival);

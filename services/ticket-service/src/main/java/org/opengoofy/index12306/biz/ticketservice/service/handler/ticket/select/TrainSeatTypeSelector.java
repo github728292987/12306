@@ -73,6 +73,9 @@ public final class TrainSeatTypeSelector {
             List<Future<List<TrainPurchaseTicketRespDTO>>> futureResults = new ArrayList<>(seatTypeMap.size());
             seatTypeMap.forEach((seatType, passengerSeatDetails) -> {
                 // 线程池参数如何设置？详情查看：https://nageoffer.com/12306/question
+                /**
+                 * 每种座位等级生成一个completableFuture提交给线程池执行distributeSeats
+                 */
                 Future<List<TrainPurchaseTicketRespDTO>> completableFuture = selectSeatThreadPoolExecutor
                         .submit(() -> distributeSeats(trainType, seatType, requestParam, passengerSeatDetails));
                 futureResults.add(completableFuture);
@@ -124,6 +127,7 @@ public final class TrainSeatTypeSelector {
                         each.setIdType(passenger.getIdType());
                         each.setRealName(passenger.getRealName());
                     });
+            // TODO 这里为什么不去reids里面查
             LambdaQueryWrapper<TrainStationPriceDO> lambdaQueryWrapper = Wrappers.lambdaQuery(TrainStationPriceDO.class)
                     .eq(TrainStationPriceDO::getTrainId, requestParam.getTrainId())
                     .eq(TrainStationPriceDO::getDeparture, requestParam.getDeparture())

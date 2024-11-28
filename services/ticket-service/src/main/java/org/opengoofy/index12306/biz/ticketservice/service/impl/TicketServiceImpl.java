@@ -378,6 +378,9 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
         // 为什么需要令牌限流？余票缓存限流不可以么？详情查看：https://nageoffer.com/12306/question
         TokenResultDTO tokenResult = ticketAvailabilityTokenBucket.takeTokenFromBucket(requestParam);
         if (tokenResult.getTokenIsNull()) {
+            /**
+             * tokenTicketsRefreshMap 记录进行过token兜底策略的车次
+             */
             Object ifPresentObj = tokenTicketsRefreshMap.getIfPresent(requestParam.getTrainId());
             if (ifPresentObj == null) {
                 synchronized (TicketService.class) {
@@ -392,6 +395,9 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
         }
         // v1 版本购票存在 4 个较为严重的问题，v2 版本相比较 v1 版本更具有业务特点以及性能，整体提升较大
         // 写了详细的 v2 版本购票升级指南，详情查看：https://nageoffer.com/12306/question
+        /**
+         * 这里是本地锁加分布式锁，通过本地锁降低分布式锁的竞争
+         */
         List<ReentrantLock> localLockList = new ArrayList<>();
         List<RLock> distributedLockList = new ArrayList<>();
         Map<Integer, List<PurchaseTicketPassengerDetailDTO>> seatTypeMap = requestParam.getPassengers().stream()
@@ -627,6 +633,11 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
 
     private final ScheduledExecutorService tokenIsNullRefreshExecutor = Executors.newScheduledThreadPool(1);
 
+    /**
+     * 从token令牌桶拿不够令牌时进行相应的兜底策略（因为token和真正的余票缓存可能存在差异，比如拿到token的宕机了）故而再查询一次这些类型的座位
+     * @param requestParam
+     * @param tokenResult
+     */
     private void tokenIsNullRefreshToken(PurchaseTicketReqDTO requestParam, TokenResultDTO tokenResult) {
         RLock lock = redissonClient.getLock(String.format(LOCK_TOKEN_BUCKET_ISNULL, requestParam.getTrainId()));
         if (!lock.tryLock()) {

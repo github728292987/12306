@@ -37,8 +37,7 @@ public interface TrainStationService {
     List<TrainStationQueryRespDTO> listTrainStationQuery(String trainId);
 
     /**
-     * 计算列车站点路线关系
-     * 获取开始站点和目的站点及中间站点信息
+     * 计算列车的所有站点所能构成的所有路线
      *
      * @param trainId   列车 ID
      * @param departure 出发站
@@ -48,7 +47,7 @@ public interface TrainStationService {
     List<RouteDTO> listTrainStationRoute(String trainId, String departure, String arrival);
 
     /**
-     * 获取需列车站点扣减路线关系
+     * 获取购票后列车站点扣减路线关系
      * 获取开始站点和目的站点、中间站点以及关联站点信息
      *
      * @param trainId   列车 ID

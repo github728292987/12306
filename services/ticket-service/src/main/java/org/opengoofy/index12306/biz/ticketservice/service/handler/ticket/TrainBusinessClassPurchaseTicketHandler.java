@@ -52,7 +52,6 @@ import static org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.
 
 /**
  * 高铁商务座购票组件
- *
  */
 @Component
 @RequiredArgsConstructor
@@ -282,6 +281,10 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
                     actualSeats[j - 1][k - 1] = listAvailableSeat.contains("0" + j + SeatNumberUtil.convert(0, k)) ? 0 : 1;
                 }
             }
+            /**
+             * select的形式：每行一个座位，第一列时row，第二列是col，数值是从1开始的，不是从0开始的
+             * carriagesNumberSeatsMap 存放最终选座结果
+             */
             int[][] select = SeatSelection.adjacent(passengerSeatDetails.size(), actualSeats);
             if (select != null) {
                 carriagesNumberSeatsMap.put(carriagesNumber, select);
@@ -297,6 +300,9 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
             }
             demotionStockNumMap.putIfAbsent(carriagesNumber, demotionStockNum);
             actualSeatsMap.putIfAbsent(carriagesNumber, actualSeats);
+            /**
+             * 只有所有车厢都不能满足邻座才会降级
+             */
             if (i < trainStationCarriageRemainingTicket.size() - 1) {
                 continue;
             }
@@ -320,12 +326,15 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
                     String carriagesNumberBack = entry.getKey();
                     int demotionStockNumBack = entry.getValue();
                     int[][] seats = actualSeatsMap.get(carriagesNumberBack);
+                    /**
+                     * TODO 分配这个车厢的所有余座，逻辑似乎有问题？不考虑乘客人数了？而且每个车厢都分配一次？
+                     */
                     int[][] nonAdjacentSeats = SeatSelection.nonAdjacent(demotionStockNumBack, seats);
                     carriagesNumberSeatsMap.put(entry.getKey(), nonAdjacentSeats);
                 }
             }
         }
-        // 乘车人员在单一车厢座位不满足，触发乘车人元分布在不同车厢
+        // 乘车人员在单一车厢座位不满足，触发乘车人员分布在不同车厢
         int count = (int) carriagesNumberSeatsMap.values().stream()
                 .flatMap(Arrays::stream)
                 .count();

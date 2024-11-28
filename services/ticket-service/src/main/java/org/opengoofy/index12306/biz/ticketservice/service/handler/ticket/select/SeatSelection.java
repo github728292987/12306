@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 座位选择器
- * 
+ * 默认座位选择器
+ * 用户没有选择座位时由系统默认选择，找到第一组满足数量的连续座位即可返回
  */
 public class SeatSelection {
 
@@ -35,6 +35,9 @@ public class SeatSelection {
         for (int i = 0; i < numRows; i++) {
             for (int j = 0; j < numCols; j++) {
                 if (seatLayout[i][j] == 0) {
+                    /**
+                     * 找连续的座位直到数量==numSeats
+                     */
                     int consecutiveSeats = 0;
                     for (int k = j; k < numCols; k++) {
                         if (seatLayout[i][k] == 0) {
@@ -73,6 +76,12 @@ public class SeatSelection {
         return actualSeat;
     }
 
+    /**
+     * 非邻座座位选择器，尽力分配座位直到数量为numSeats
+     * @param numSeats
+     * @param seatLayout
+     * @return
+     */
     public static int[][] nonAdjacent(int numSeats, int[][] seatLayout) {
         int numRows = seatLayout.length;
         int numCols = seatLayout[0].length;

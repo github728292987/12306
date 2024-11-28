@@ -98,6 +98,7 @@ public final class TicketAvailabilityTokenBucket {
         StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
         String tokenBucketHashKey = TICKET_AVAILABILITY_TOKEN_BUCKET + requestParam.getTrainId();
         Boolean hasKey = distributedCache.hasKey(tokenBucketHashKey);
+        // 加载token
         if (!hasKey) {
             RLock lock = redissonClient.getLock(String.format(LOCK_TICKET_AVAILABILITY_TOKEN_BUCKET, requestParam.getTrainId()));
             if (!lock.tryLock()) {
@@ -109,6 +110,7 @@ public final class TicketAvailabilityTokenBucket {
                     List<Integer> seatTypes = VehicleTypeEnum.findSeatTypesByCode(trainDO.getTrainType());
                     Map<String, String> ticketAvailabilityTokenMap = new HashMap<>();
                     for (RouteDTO each : routeDTOList) {
+                        // 根据车次id，座位类型，起始终点站查座位余量
                         List<SeatTypeCountDTO> seatTypeCountDTOList = seatService.listSeatTypeCount(Long.parseLong(requestParam.getTrainId()), each.getStartStation(), each.getEndStation(), seatTypes);
                         for (SeatTypeCountDTO eachSeatTypeCountDTO : seatTypeCountDTOList) {
                             String buildCacheKey = StrUtil.join("_", each.getStartStation(), each.getEndStation(), eachSeatTypeCountDTO.getSeatType());
@@ -128,6 +130,7 @@ public final class TicketAvailabilityTokenBucket {
             return redisScript;
         });
         Assert.notNull(actual);
+        // 买票时车次是固定的了，变化的只是不同乘车人以及他们的座位等级，所以按等级分类计算各个等级各需要几张票
         Map<Integer, Long> seatTypeCountMap = requestParam.getPassengers().stream()
                 .collect(Collectors.groupingBy(PurchaseTicketPassengerDetailDTO::getSeatType, Collectors.counting()));
         JSONArray seatTypeCountArray = seatTypeCountMap.entrySet().stream()
@@ -184,7 +187,7 @@ public final class TicketAvailabilityTokenBucket {
     }
 
     /**
-     * 删除令牌，一般在令牌与数据库不一致情况下触发
+     * 删除令牌，一般在令牌与数据库（或者说redis中余量缓存）不一致情况下触发
      *
      * @param requestParam 删除令牌容器参数
      */
