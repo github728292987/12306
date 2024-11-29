@@ -19,7 +19,6 @@ package org.opengoofy.index12306.framework.starter.designpattern.strategy;
 
 /**
  * 策略执行抽象
- *
  */
 public interface AbstractExecuteStrategy<REQUEST, RESPONSE> {
 

@@ -23,8 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Canal Binlog 监听触发时间
- *
+ * Canal Binlog 监听触发事件
  */
 @Data
 public class CanalBinlogEvent {
@@ -41,7 +40,7 @@ public class CanalBinlogEvent {
 
     /**
      * es 是指 Mysql Binlog 里原始的时间戳，也就是数据原始变更的时间
-     * Canal 的消费延迟 = ts - es
+     * Canal 的构造数据延迟 = ts - es
      */
     private Long es;
 

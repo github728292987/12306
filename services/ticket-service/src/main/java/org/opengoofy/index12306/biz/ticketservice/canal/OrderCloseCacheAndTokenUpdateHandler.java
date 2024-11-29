@@ -64,7 +64,9 @@ public class OrderCloseCacheAndTokenUpdateHandler implements AbstractExecuteStra
             if (orderDetailResult.isSuccess() && orderDetailResultData != null) {
                 String trainId = String.valueOf(orderDetailResultData.getTrainId());
                 List<TicketOrderPassengerDetailRespDTO> passengerDetails = orderDetailResultData.getPassengerDetails();
+                // 座位表解锁座位
                 seatService.unlock(trainId, orderDetailResultData.getDeparture(), orderDetailResultData.getArrival(), BeanUtil.convert(passengerDetails, TrainPurchaseTicketRespDTO.class));
+                // 令牌桶回滚
                 ticketAvailabilityTokenBucket.rollbackInBucket(orderDetailResultData);
             }
         }
