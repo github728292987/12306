@@ -8,6 +8,8 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
+         <description>1</description>
+
     <artifactId>index12306-base-spring-boot-starter</artifactId>
 
     <dependencies>
